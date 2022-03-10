@@ -18,5 +18,31 @@ class App {
     this.initialiseDatabaseConnection();
     this.initialiseMiddleware();
     this.initialiseControllers(controllers);
+    this.initialiseErrorHandling();
+  }
+
+  private initialiseMiddleware(): void {
+    this.express.use(helmet());
+    this.express.use(cors());
+    this.express.use(morgan('dev'));
+    this.express.use(express.json());
+    this.express.use(express.urlencoded({ extended: false }));
+    this.express.use(compression());
+  }
+
+  private initialiseControllers(controllers: Controller[]): void {
+    controllers.forEach((controller: Controller) => {
+      this.express.use('/api/v1/', controller.router);
+    });
+  }
+
+  private initialiseErrorHandling(): void {
+    this.express.use(ErrorMiddleware());
+  }
+
+  private initialiseDatabaseConnection(): void {
+    const { MONGO_USERNAME, MONGO_PASSWORD, MONGO_PATH } = process.env;
+
+    mongoose.connect();
   }
 }
